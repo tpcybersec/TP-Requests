@@ -1,2 +1,2 @@
 json-duplicate-keys>=2024.12.12
-TP-HTTP-Request-Response-Parser>=2024.12.22
+TP-HTTP-Request-Response-Parser>=2025.4.30

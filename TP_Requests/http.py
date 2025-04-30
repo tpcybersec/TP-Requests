@@ -1,9 +1,9 @@
-import json_duplicate_keys as jdks, socket, ssl, copy, time
+import socket, ssl, time
 from TP_HTTP_Request_Response_Parser import TP_HTTP_REQUEST_PARSER
 
 class TP_HTTP_REQUEST:
 	def __init__(self, rawRequest:str, separator:str="||", parse_index:str="$", dupSign_start:str="{{{", dupSign_end:str="}}}", ordered_dict:bool=False) -> None:
-		self.__version = "2025.1.1"
+		self.__version = "2025.4.30"
 
 		self.RequestParser = TP_HTTP_REQUEST_PARSER(rawRequest, separator=separator, parse_index=parse_index, dupSign_start=dupSign_start, dupSign_end=dupSign_end, ordered_dict=ordered_dict)
 
@@ -14,7 +14,7 @@ class TP_HTTP_REQUEST:
 
 
 
-	def sendRequest(self, Host:str, Port:int, Scheme:str, timeout:int=30, update_content_length:bool=True, proxy_server:dict=None) -> dict:
+	def sendRequest(self, Host:str, Port:int, Scheme:str, ReqTimeout:int=60, update_content_length:bool=True, proxy_server:dict=None) -> dict:
 		rawRequest = self.RequestParser.unparse(update_content_length=update_content_length)
 		rawResponse = None
 		request_timestamp = response_timestamp = 0
@@ -22,14 +22,11 @@ class TP_HTTP_REQUEST:
 		try:
 			# Create a socket connection
 			client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			client_socket.settimeout(timeout)
+			client_socket.settimeout(ReqTimeout)
 
 			# Connect to the proxy/ server
 			if type(proxy_server) == dict:
-				try:
-					client_socket.connect((proxy_server["host"], proxy_server["port"]))
-				except Exception as e:
-					client_socket.connect((Host, Port))
+				client_socket.connect((proxy_server["host"], proxy_server["port"]))
 			else:
 				client_socket.connect((Host, Port))
 
@@ -46,27 +43,27 @@ class TP_HTTP_REQUEST:
 			client_socket.sendall(rawRequest.encode())
 
 			# Receive and process the server's response
+			startReceivedResponse = True
 			rawResponse = b""
 			while True:
 				chunk = client_socket.recv(4096)
+				if startReceivedResponse: response_timestamp = int(time.time()*1000)
 				if not chunk:
 					break
 				rawResponse += chunk
-
-			response_timestamp = int(time.time()*1000)
+				startReceivedResponse = False
 
 			# Close the connections
 			client_socket.close()
-			rawResponse = rawResponse.decode()
+			rawResponse = rawResponse.decode("utf-8")
 		except Exception as e:
 			pass
 
-		return jdks.JSON_DUPLICATE_KEYS({
+		return {
 			"Host": Host,
 			"Port": Port,
 			"Scheme": Scheme,
 			"rawRequest": rawRequest,
 			"rawResponse": rawResponse,
-			"request_timestamp": request_timestamp,
-			"response_timestamp": response_timestamp
-		})
+			"RequestTime": response_timestamp - request_timestamp
+		}
