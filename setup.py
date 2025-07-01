@@ -1,8 +1,9 @@
+from TP_Requests import TP_Requests_VERSION
 import setuptools
 
 setuptools.setup(
 	name="TP-Requests",
-	version="2025.4.30",
+	version=TP_Requests_VERSION,
 	author="TP Cyber Security",
 	license="MIT",
 	author_email="tpcybersec2023@gmail.com",
@@ -15,5 +16,5 @@ setuptools.setup(
 		"Programming Language :: Python :: 3"
 	],
 	keywords=["TPCyberSec", "TP_Requests", "TP_HTTP_REQUEST", "TP_MQTT_REQUEST", "TP_WEBSOCKET_REQUEST"],
-	packages=["TP_Requests"],
+	packages=setuptools.find_packages(),
 )

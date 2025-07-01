@@ -5,7 +5,8 @@
 !/requirements.txt
 !/SECURITY.md
 !/setup.py
-!/TP_Requests/
+!/TP_Requests
+!/TP_Requests/__init__.py
 !/TP_Requests/http.py
 !/TP_Requests/mqtt.py
 !/TP_Requests/ws.py
