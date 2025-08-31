@@ -1,34 +1,37 @@
-# TP-Requests - PyPI
-Send the HTTP/ MQTT/ WEBSOCKET Request
-
-<p align="center">
-	<a href="https://github.com/tpcybersec/TP-Requests/releases/"><img src="https://img.shields.io/github/release/tpcybersec/TP-Requests" height=30></a>
-	<a href="#"><img src="https://img.shields.io/github/downloads/tpcybersec/TP-Requests/total" height=30></a>
-	<a href="#"><img src="https://img.shields.io/github/stars/tpcybersec/TP-Requests" height=30></a>
-	<a href="#"><img src="https://img.shields.io/github/forks/tpcybersec/TP-Requests" height=30></a>
-	<a href="https://github.com/tpcybersec/TP-Requests/issues?q=is%3Aopen+is%3Aissue"><img src="https://img.shields.io/github/issues/tpcybersec/TP-Requests" height=30></a>
-	<a href="https://github.com/tpcybersec/TP-Requests/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/tpcybersec/TP-Requests" height=30></a>
+<div align="center">
+	<h1>TP-Requests - PyPI</h1>
+	<i>Send the HTTP/ MQTT/ WEBSOCKET Request</i>
+	<br><br>
+	<a href="https://github.com/TPCyberSec/TP-Requests/releases/"><img src="https://img.shields.io/github/release/TPCyberSec/TP-Requests" height=30></a>
+	<a href="#"><img src="https://img.shields.io/github/downloads/TPCyberSec/TP-Requests/total" height=30></a>
+	<a href="#"><img src="https://img.shields.io/github/stars/TPCyberSec/TP-Requests" height=30></a>
+	<a href="#"><img src="https://img.shields.io/github/forks/TPCyberSec/TP-Requests" height=30></a>
+	<a href="https://github.com/TPCyberSec/TP-Requests/issues?q=is%3Aopen+is%3Aissue"><img src="https://img.shields.io/github/issues/TPCyberSec/TP-Requests" height=30></a>
+	<a href="https://github.com/TPCyberSec/TP-Requests/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/TPCyberSec/TP-Requests" height=30></a>
 	<br>
 	<a href="#"><img src="https://img.shields.io/pypi/v/TP-Requests" height=30></a>
+	<a href="#"><img src="https://img.shields.io/pypi/pyversions/TP-Requests" height=30></a>
 	<a href="#"><img src="https://img.shields.io/pypi/dm/TP-Requests" height=30></a>
-</p>
+</div>
 
-## Installation
+---
+# 🛠️ Installation
 #### From PyPI:
 ```console
-pip install TP-Requests
+pip install tp-requests
 ```
 #### From Source:
 ```console
-git clone https://github.com/tpcybersec/TP-Requests.git --branch <Branch/Tag>
+git clone https://github.com/TPCyberSec/TP-Requests.git --branch <Branch/Tag>
 cd TP-Requests
-python setup.py build
-python setup.py install
+python -m build
+python -m pip install dist/tp_requests-<version>-py3-none-any.whl
 ```
 
-## Basic Usage
+---
+# 📘 Basic Usage
 ```
-from TP_Requests.http import TP_HTTP_REQUEST
+from tp_requests.http import TP_HTTP_REQUEST
 
 rawRequest = """GET /v1/promo/extension HTTP/2
 Host: d2y7f743exec8w.cloudfront.net
@@ -45,8 +48,13 @@ httpRequest = TP_HTTP_REQUEST(rawRequest)
 
 httpRequest.RequestParser.request_method = "POST"
 
-print(httpRequest.sendRequest(Host="d2y7f743exec8w.cloudfront.net", Port=443, Scheme="https", proxy_server={"host":"127.0.0.1","port":8080}))
+print(httpRequest.sendRequest(Host="d2y7f743exec8w.cloudfront.net", Port=443, Scheme="https", proxy_server={"type":"http","host":"127.0.0.1","port":8080}))
 ```
----
 
-## CHANGELOG
+---
+# 👥 Contributors
+
+---
+# 📝 CHANGELOG
+
+---
