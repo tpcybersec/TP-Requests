@@ -4,18 +4,15 @@ from io import BytesIO
 from tp_http_request_response_parser import TP_HTTP_REQUEST_PARSER, TP_HTTP_RESPONSE_PARSER
 
 class TP_HTTP_REQUEST:
-	def __init__(self, rawRequest, Coding="utf-8", separator="||", parse_index="$", dupSign_start="{{{", dupSign_end="}}}", ordered_dict=False, skipDuplicated=True, _isDebug_=False):
-		self.__version = "2025.8.30"
-		self.Coding = Coding
-		self.separator = separator
-		self.parse_index = parse_index
-		self.dupSign_start = dupSign_start
-		self.dupSign_end = dupSign_end
-		self.ordered_dict = ordered_dict
-		self.skipDuplicated = skipDuplicated
-		self._isDebug_ = _isDebug_
+	def __init__(self, rawRequest: str|TP_HTTP_REQUEST_PARSER, Coding: str = "utf8", separator: str = "||", parse_index: str = "$", dupSign_start: str = "{{{", dupSign_end: str = "}}}", ordered_dict: bool = False, skipDuplicated: bool = True, _isDebug_: bool = False) -> None:
+		self.__version = "2025.10.8"
 
-		self.RequestParser = TP_HTTP_REQUEST_PARSER(rawRequest, separator=self.separator, parse_index=self.parse_index, dupSign_start=self.dupSign_start, dupSign_end=self.dupSign_end, ordered_dict=self.ordered_dict, skipDuplicated=self.skipDuplicated)
+		self.Coding = Coding; self.separator = separator; self.parse_index = parse_index; self.dupSign_start = dupSign_start; self.dupSign_end = dupSign_end; self.ordered_dict = ordered_dict; self.skipDuplicated = skipDuplicated; self._isDebug_ = _isDebug_
+
+		if isinstance(rawRequest, TP_HTTP_REQUEST_PARSER):
+			self.RequestParser = rawRequest
+		else:
+			self.RequestParser = TP_HTTP_REQUEST_PARSER(rawRequest, separator=self.separator, parse_index=self.parse_index, dupSign_start=self.dupSign_start, dupSign_end=self.dupSign_end, ordered_dict=self.ordered_dict, skipDuplicated=self.skipDuplicated)
 
 		if self.RequestParser.request_headers.get("User-Agent", case_insensitive=True)["value"] == "JSON_DUPLICATE_KEYS_ERROR":
 			self.RequestParser.request_headers.set("User-Agent", "TP-Requests (http/TP_HTTP_REQUEST "+self.__version+")")
@@ -71,7 +68,7 @@ class TP_HTTP_REQUEST:
 			raise Exception("SOCKS5 connect failed: {}".format(resp[1]))
 
 
-	def sendRequest(self, Host, Port, Scheme, ReqTimeout=60, update_content_length=True, proxy_server=None):
+	def sendRequest(self, Host: str, Port: int, Scheme: str, ReqTimeout: int = 60, update_content_length: bool =True, proxy_server: None|dict=None):
 		rawRequest = self.RequestParser.unparse(update_content_length=update_content_length)
 		rawResponse = b""
 		request_timestamp = response_timestamp = 0
@@ -142,8 +139,9 @@ class TP_HTTP_REQUEST:
 		if len(rawResponse) > 0:
 			responseBody = re.split(b"\r\n\r\n", rawResponse, 1)[1] if len(re.split(b"\r\n\r\n", rawResponse, 1)) == 2 else ""
 			if responseBody:
-				if re.search(b"^[a-fA-F0-9]+\r\n", responseBody, re.MULTILINE) and re.search(b"\r\n0\r\n\r\n$", responseBody, re.MULTILINE):
-					chunked_body = re.sub(b"\r\n0\r\n\r\n$", b"", re.sub(b"^[a-fA-F0-9]+\r\n", b"", responseBody))
+				if re.search(b"^[a-fA-F0-9]+\r\n", responseBody, re.MULTILINE):
+					chunk_size = responseBody.split(b"\r\n", 1)[0]
+					chunked_body = re.sub(b"^[a-fA-F0-9]+\r\n", b"", responseBody)[:int(chunk_size, 16)]
 					try:
 						with gzip.GzipFile(fileobj=BytesIO(chunked_body)) as f:
 							decompressed_responseBody = f.read()

@@ -48,7 +48,9 @@ httpRequest = TP_HTTP_REQUEST(rawRequest)
 
 httpRequest.RequestParser.request_method = "POST"
 
-print(httpRequest.sendRequest(Host="d2y7f743exec8w.cloudfront.net", Port=443, Scheme="https", proxy_server={"type":"http","host":"127.0.0.1","port":8080}))
+sendRequest_result = httpRequest.sendRequest(Host="d2y7f743exec8w.cloudfront.net", Port=443, Scheme="https", proxy_server={"type":"http","host":"127.0.0.1","port":8080})
+
+print(sendRequest_result)
 ```
 
 ---
