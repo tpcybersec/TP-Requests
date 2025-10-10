@@ -5,7 +5,7 @@ from tp_http_request_response_parser import TP_HTTP_REQUEST_PARSER, TP_HTTP_RESP
 
 class TP_HTTP_REQUEST:
 	def __init__(self, rawRequest: str|TP_HTTP_REQUEST_PARSER, Coding: str = "utf8", separator: str = "||", parse_index: str = "$", dupSign_start: str = "{{{", dupSign_end: str = "}}}", ordered_dict: bool = False, skipDuplicated: bool = True, _isDebug_: bool = False) -> None:
-		self.__version = "2025.10.8"
+		self.__version = "2025.10.10"
 
 		self.Coding = Coding; self.separator = separator; self.parse_index = parse_index; self.dupSign_start = dupSign_start; self.dupSign_end = dupSign_end; self.ordered_dict = ordered_dict; self.skipDuplicated = skipDuplicated; self._isDebug_ = _isDebug_
 
@@ -139,15 +139,22 @@ class TP_HTTP_REQUEST:
 		if len(rawResponse) > 0:
 			responseBody = re.split(b"\r\n\r\n", rawResponse, 1)[1] if len(re.split(b"\r\n\r\n", rawResponse, 1)) == 2 else ""
 			if responseBody:
-				if re.search(b"^[a-fA-F0-9]+\r\n", responseBody, re.MULTILINE):
-					chunk_size = responseBody.split(b"\r\n", 1)[0]
-					chunked_body = re.sub(b"^[a-fA-F0-9]+\r\n", b"", responseBody)[:int(chunk_size, 16)]
-					try:
-						with gzip.GzipFile(fileobj=BytesIO(chunked_body)) as f:
-							decompressed_responseBody = f.read()
-							rawResponse = re.split(b"\r\n\r\n", rawResponse, 1)[0] + b"\r\n\r\n" + decompressed_responseBody
-					except Exception as e:
-						rawResponse = re.split(b"\r\n\r\n", rawResponse, 1)[0] + b"\r\n\r\n" + chunked_body
+				try:
+					# Try normal gzip first
+					with gzip.GzipFile(fileobj=BytesIO(responseBody)) as f:
+						decompressed_responseBody = f.read()
+						rawResponse = re.split(b"\r\n\r\n", rawResponse, 1)[0] + b"\r\n\r\n" + decompressed_responseBody
+				except Exception as e:
+					# If normal gzip fails, check for chunked encoding
+					if re.search(b"^[a-fA-F0-9]+\r\n", responseBody, re.MULTILINE):
+						chunk_size = responseBody.split(b"\r\n", 1)[0]
+						chunked_body = re.sub(b"^[a-fA-F0-9]+\r\n", b"", responseBody)[:int(chunk_size, 16)]
+						try:
+							with gzip.GzipFile(fileobj=BytesIO(chunked_body)) as f:
+								decompressed_responseBody = f.read()
+								rawResponse = re.split(b"\r\n\r\n", rawResponse, 1)[0] + b"\r\n\r\n" + decompressed_responseBody
+						except Exception as e:
+							rawResponse = re.split(b"\r\n\r\n", rawResponse, 1)[0] + b"\r\n\r\n" + chunked_body
 
 		rawResponse = TP_HTTP_RESPONSE_PARSER(rawResponse, separator=self.separator, parse_index=self.parse_index, dupSign_start=self.dupSign_start, dupSign_end=self.dupSign_end, ordered_dict=self.ordered_dict, skipDuplicated=self.skipDuplicated).unparse(update_content_length=True) if len(rawResponse) > 0 else ""
 
